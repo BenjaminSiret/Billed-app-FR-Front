@@ -23,6 +23,7 @@ export default class NewBill {
     const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
     if (!allowedExtensions.test(fileName)) {
       alert("Seuls les fichiers JPEG, JPG ou PNG sont acceptés");
+      this.document.querySelector(`input[data-testid="file"]`).value = "";
       return false;
     }
     else {
