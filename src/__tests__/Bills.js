@@ -38,18 +38,31 @@ describe("Given I am connected as an employee", () => {
   });
 
   describe("When I click on the icon eye", () => {
-    test("A modal should opened", () => {
-      const handleClickIconEye = jest.fn(Bills.handleClickIconEye);
-      const eye = screen.getAllByTestId("icon-eye")[0];
-      eye.addEventListener('click', handleClickIconEye);
+    test('A modal should open', () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }));
+      document.body.innerHTML = BillsUI({ data: bills });
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = null;
+      const billsContainer = new Bills({
+        document, onNavigate, store, bills, localStorage: window.localStorage
+      });
+
+      $.fn.modal = jest.fn();
+      const handleClickIconEye = jest.fn(billsContainer.handleClickIconEye);
+      const eye = screen.getAllByTestId('icon-eye')[0];
+      eye.addEventListener('click', handleClickIconEye(eye));
       userEvent.click(eye);
       expect(handleClickIconEye).toHaveBeenCalled();
 
-      const modale = screen.getByTestId("modaleFile");
+      const modale = screen.getByTestId('modaleFile');
       expect(modale).toBeTruthy();
     });
   });
-
   // TODO: describe => quand je suis sur la page Bills, test => quand je clique sur le bouton
   //      "nouvelle note de frais", je suis redirigé vers la page Bills/New
 
