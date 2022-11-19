@@ -4,7 +4,7 @@
 import { screen, waitFor } from "@testing-library/dom";
 import BillsUI from "../views/BillsUI.js";
 import { bills } from "../fixtures/bills.js";
-import { ROUTES_PATH } from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import Bills from "../containers/Bills.js";
 import router from "../app/Router.js";
@@ -65,7 +65,30 @@ describe("Given I am connected as an employee", () => {
   });
   // TODO: describe => quand je suis sur la page Bills, test => quand je clique sur le bouton
   //      "nouvelle note de frais", je suis redirigé vers la page Bills/New
+  describe("When I click on the new bill button", () => {
+    test("I should be sent on New Bill page", () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }));
+      document.body.innerHTML = BillsUI({ data: bills });
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = null;
+      const billsContainer = new Bills({
+        document, onNavigate, store, bills, localStorage: window.localStorage
+      });
 
+      const handleClickNewBill = jest.fn((e) => billsContainer.handleClickNewBill(e));
+      const newBillButton = screen.getByTestId("btn-new-bill");
+      newBillButton.addEventListener("click", handleClickNewBill);
+      userEvent.click(newBillButton);
+      expect(handleClickNewBill).toHaveBeenCalled();
+
+
+    });
+  });
 
 
   // TODO: describe => quand je suis sur la page Bills, test => quand je clique sur le bouton de déconnexion,
