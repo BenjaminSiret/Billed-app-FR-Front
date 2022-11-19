@@ -85,8 +85,7 @@ describe("Given I am connected as an employee", () => {
       newBillButton.addEventListener("click", handleClickNewBill);
       userEvent.click(newBillButton);
       expect(handleClickNewBill).toHaveBeenCalled();
-
-
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
     });
   });
 
