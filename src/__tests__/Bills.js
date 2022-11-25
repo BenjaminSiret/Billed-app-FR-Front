@@ -115,11 +115,7 @@ describe("Given I am a user connected as Employee", () => {
       expect(statusColumn).toBeTruthy();
       const actionsColumn = await screen.getAllByText("Actions");
       expect(actionsColumn).toBeTruthy();
-      expect(bills.length).toBe(4);
-      expect(bills[0].date).toBe('2004-04-04');
-      expect(bills[3].commentAdmin).toBe('en fait non');
-      expect(bills[2].fileUrl).toBe('https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=4df6ed2c-12c8-42a2-b013-346c1346f732'
-      );
+
     });
     describe("When an error occurs on API", () => {
       beforeEach(() => {
