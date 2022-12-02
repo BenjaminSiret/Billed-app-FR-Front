@@ -7,6 +7,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import router from "../app/Router.js";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
+import BillsUI from "../containers/Bills.js";
+import mockStore from "../__mocks__/store";
 
 
 describe("Given I am connected as an employee", () => {
@@ -74,7 +76,11 @@ describe("Given I am connected as an Employee", () => {
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
       await waitFor(() => screen.getByText("Envoyer une note de frais"));
-      const newBill = {
+      const store = null;
+      const newBill = new NewBill({
+        document, onNavigate, store, localStorage
+      });
+      const fakeBill = {
         email: "a@a",
         type: "Transports",
         name: "Vol San Francisco",
@@ -87,6 +93,12 @@ describe("Given I am connected as an Employee", () => {
         fileName: 'test.png',
         status: 'pending'
       };
+
+      const updateBill = jest.fn(newBill.updateBill(fakeBill));
+      expect(updateBill).toBeTruthy();
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
+      document.body.innerHTML = "";
     });
   });
+  //TODO: test 404 et 500
 });
