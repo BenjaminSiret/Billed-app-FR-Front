@@ -100,21 +100,21 @@ describe("Given I am a user connected as Employee", () => {
       const root = document.createElement("div");
       root.setAttribute("id", "root");
       document.body.append(root);
+      const store = mockStore;
       router();
       window.onNavigate(ROUTES_PATH.Bills);
       await waitFor(() => screen.getByText("Mes notes de frais"));
-      const typeColumn = await screen.getAllByText("Type");
-      expect(typeColumn).toBeTruthy();
-      const nameColumn = await screen.getAllByText("Nom");
-      expect(nameColumn).toBeTruthy();
-      const dateColumn = await screen.getAllByText("Date");
-      expect(dateColumn).toBeTruthy();
-      const amountColumn = await screen.getAllByText("Montant");
-      expect(amountColumn).toBeTruthy();
-      const statusColumn = await screen.getAllByText("Statut");
-      expect(statusColumn).toBeTruthy();
-      const actionsColumn = await screen.getAllByText("Actions");
-      expect(actionsColumn).toBeTruthy();
+      const billsContainer = await screen.getByTestId("tbody");
+      const mockedBills = await store.bills().list();
+      const firstMockedBillId = mockedBills[0].id;
+      const firstMockedBillCommentary = mockedBills[0].commentary;
+      const secondMockedBillName = mockedBills[1].name;
+      const secondMockedBillType = mockedBills[1].type;
+
+      expect(firstMockedBillId).toBe("47qAXb6fIm2zOKkLzMro");
+      expect(firstMockedBillCommentary).toBe("séminaire billed");
+      expect(billsContainer.innerHTML).toMatch(secondMockedBillName);
+      expect(billsContainer.innerHTML).toMatch(secondMockedBillType);
 
     });
     describe("When an error occurs on API", () => {
