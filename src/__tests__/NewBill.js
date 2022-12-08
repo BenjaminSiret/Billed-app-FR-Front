@@ -8,9 +8,9 @@ import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import mockStore from "../__mocks__/store";
 import router from "../app/Router.js";
-import userEvent from "@testing-library/user-event";
 
 jest.mock("../app/Store", () => mockStore);
+
 describe("Given I am connected as an employee", () => {
   let root;
   let newBillContainer;
@@ -68,32 +68,38 @@ describe("Given I am connected as an employee", () => {
 
 //test d'integration POST
 describe("Given I am connected as an Employee", () => {
+  let root;
+
+  beforeEach(() => {
+    root = document.createElement("div");
+    root.setAttribute("id", "root");
+    document.body.append(root);
+    router();
+  });
+
   describe("When I am on NewBill Page, I fill the form and submit", () => {
     test("Then the bill is added to API POST", async () => {
       localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
-      const root = document.createElement("div");
-      root.setAttribute("id", "root");
-      document.body.append(root);
-      router();
       document.body.innerHTML = NewBillUI();
+      const store = null;
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
-      const store = null;
       const newBill = new NewBill({
         document, onNavigate, store, localStorage
       });
+
       const nameField = screen.getByTestId("expense-name");
-      const dateField = screen.getByTestId("datepicker");
-      const amountField = screen.getByTestId("amount");
-      const pctField = screen.getByTestId("pct");
-      const commentaryField = screen.getByTestId("commentary");
-      const proofField = screen.getByTestId("file");
       fireEvent.change(nameField, { target: { value: "Transports" } });
+      const dateField = screen.getByTestId("datepicker");
       fireEvent.change(dateField, { target: { value: "2020-01-05" } });
+      const amountField = screen.getByTestId("amount");
       fireEvent.change(amountField, { target: { value: 1000 } });
+      const pctField = screen.getByTestId("pct");
       fireEvent.change(pctField, { target: { value: 20 } });
+      const commentaryField = screen.getByTestId("commentary");
       fireEvent.change(commentaryField, { target: { value: "c'était long !!" } });
+      const proofField = screen.getByTestId("file");
       fireEvent.change(proofField, {
         target: {
           files: [new File(['test.png'], "test.png", { type: "png" })],
@@ -102,13 +108,12 @@ describe("Given I am connected as an Employee", () => {
 
       const submitBill = jest.fn(newBill.handleSubmit);
       const newBillForm = screen.getByTestId("form-new-bill");
-
       newBillForm.addEventListener("submit", submitBill);
       fireEvent.submit(newBillForm);
 
       expect(submitBill).toHaveBeenCalled();
       expect(screen.getByTestId("bills-title")).toBeTruthy();
     });
+
   });
-  //TODO: test 404 et 500
 });
