@@ -21,7 +21,6 @@ export default class NewBill {
     const fileName = file.name;
     const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
     if (!allowedExtensions.test(fileName)) {
-      console.log("ERREUR...");
       const errorMessage = this.document.createElement("div");
       errorMessage.classList.add("error-message");
       errorMessage.innerHTML = "Seuls les fichiers JPEG, JPG ou PNG sont acceptés";

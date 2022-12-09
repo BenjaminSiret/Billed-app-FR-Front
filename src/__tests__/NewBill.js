@@ -67,20 +67,24 @@ describe("Given I am connected as an employee", () => {
       expect(input.files.length).toBe(1);
       expect(handleChangeFile).toHaveBeenCalled();
     });
+  });
 
-    test("file not valid", () => {
+  describe("When I am on NewBill Page and I add a file with invalid format", () => {
+    test("Then an error message is displayed", () => {
       document.body.innerHTML = NewBillUI();
 
-      const handleChangeFile = jest.fn((e) => newBillContainer.handleChangeFile(e));
+      const handleChangeFile = jest.fn(newBillContainer.handleChangeFile);
       const input = screen.getByTestId("file");
-      input.addEventListener("change", handleChangeFile);
-      fireEvent.change(input, {
+      const testFile = {
         target: {
-          files: [new File(['test.png'], "test.png", { type: "png" })],
-        },
-      });
-      expect(input.files[0].name).toBe("test.png");
+          files: [new File(["test.mp4"], "test.mp4", { type: "mp4", lastModified: new Date(0) })]
+        }
+      };
+      input.addEventListener("change", handleChangeFile);
+      fireEvent.change(input, testFile);
 
+      expect(handleChangeFile).toHaveBeenCalled();
+      expect(screen.getByText("Seuls les fichiers JPEG, JPG ou PNG sont acceptés")).toBeTruthy();
     });
   });
 });
