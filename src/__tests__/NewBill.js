@@ -74,13 +74,13 @@ describe("Given I am connected as an employee", () => {
 
       const handleChangeFile = jest.fn(newBillContainer.handleChangeFile);
       const input = screen.getByTestId("file");
-      const testFile = {
-        target: {
-          files: [new File(["test.mp4"], "test.mp4", { type: "mp4" })]
-        }
-      };
+
       input.addEventListener("change", handleChangeFile);
-      fireEvent.change(input, testFile);
+      fireEvent.change(input, {
+        target: {
+          files: [new File(["test"], "test.mp4", { type: "media/mp4" })]
+        }
+      });
 
       expect(handleChangeFile).toHaveBeenCalled();
       expect(screen.getByText("Seuls les fichiers JPEG, JPG ou PNG sont acceptés")).toBeTruthy();
@@ -91,23 +91,22 @@ describe("Given I am connected as an employee", () => {
     test("Then the error message is removed", () => {
       document.body.innerHTML = NewBillUI();
 
-      const inputFile = document.querySelector(`input[data-testid="file"]`);
+      const input = document.querySelector(`input[data-testid="file"]`);
       const errorMessage = document.createElement("div");
       errorMessage.classList.add("error-message");
-      errorMessage.innerHTML = "TOTO";
-      inputFile.parentNode.appendChild(errorMessage);
+      errorMessage.innerHTML = "Message d'erreur";
+      input.parentNode.appendChild(errorMessage);
 
       const handleChangeFile = jest.fn(newBillContainer.handleChangeFile);
-      const testFile = {
+      input.addEventListener("change", handleChangeFile);
+      fireEvent.change(input, {
         target: {
-          files: [new File(["test.png"], "test.png", { type: "png" })]
+          files: [new File(["test"], "test.png", { type: "image/png" })]
         }
-      };
-      inputFile.addEventListener("change", handleChangeFile);
-      fireEvent.change(inputFile, testFile);
+      });
 
       expect(handleChangeFile).toHaveBeenCalled();
-      //TODO: réparer ce test car le message n'est pas enlevé...
+      expect(document.body.innerHTML).not.toMatch("Message d'erreur");
     });
   });
 });
