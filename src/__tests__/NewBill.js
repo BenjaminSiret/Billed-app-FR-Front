@@ -30,9 +30,9 @@ describe("Given I am connected as an employee", () => {
     newBillContainer = new NewBill(({ document, onNavigate, store, localStorage }));
   });
 
-  // afterEach(() => {
-  //   document.body.innerHTML = "";
-  // });
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
 
   describe("When I am on NewBill Page", () => {
     test("Then the mail icon in vertical layout should be highlighted", async () => {
@@ -54,17 +54,16 @@ describe("Given I am connected as an employee", () => {
 
       const handleChangeFile = jest.fn(newBillContainer.handleChangeFile);
       const input = screen.getByTestId("file");
-      const testFile = {
-        target: {
-          files: [new File(["test.png"], "test.png", { type: "png", lastModified: new Date(0) })]
-        }
-      };
+
       input.addEventListener("change", handleChangeFile);
-      fireEvent.change(input, testFile);
+      fireEvent.change(input, {
+        target: {
+          files: [new File(["test"], "test.png", { type: "image/png" })]
+        }
+      });
 
       expect(input.files[0].name).toBe("test.png");
-      expect(input.files[0].type).toBe("png");
-      expect(input.files.length).toBe(1);
+      expect(input.files[0].type).toBe("image/png");
       expect(handleChangeFile).toHaveBeenCalled();
     });
   });
@@ -77,7 +76,7 @@ describe("Given I am connected as an employee", () => {
       const input = screen.getByTestId("file");
       const testFile = {
         target: {
-          files: [new File(["test.mp4"], "test.mp4", { type: "mp4", lastModified: new Date(0) })]
+          files: [new File(["test.mp4"], "test.mp4", { type: "mp4" })]
         }
       };
       input.addEventListener("change", handleChangeFile);
@@ -85,6 +84,30 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleChangeFile).toHaveBeenCalled();
       expect(screen.getByText("Seuls les fichiers JPEG, JPG ou PNG sont acceptés")).toBeTruthy();
+    });
+  });
+
+  describe("When I am on NewBill Page, the error message for invalid file is displayed, I select a valid format file", () => {
+    test("Then the error message is removed", () => {
+      document.body.innerHTML = NewBillUI();
+
+      const inputFile = document.querySelector(`input[data-testid="file"]`);
+      const errorMessage = document.createElement("div");
+      errorMessage.classList.add("error-message");
+      errorMessage.innerHTML = "TOTO";
+      inputFile.parentNode.appendChild(errorMessage);
+
+      const handleChangeFile = jest.fn(newBillContainer.handleChangeFile);
+      const testFile = {
+        target: {
+          files: [new File(["test.png"], "test.png", { type: "png" })]
+        }
+      };
+      inputFile.addEventListener("change", handleChangeFile);
+      fireEvent.change(inputFile, testFile);
+
+      expect(handleChangeFile).toHaveBeenCalled();
+      //TODO: réparer ce test car le message n'est pas enlevé...
     });
   });
 });
@@ -100,11 +123,12 @@ describe("Given I am connected as an Employee", () => {
     router();
   });
 
+
   describe("When I am on NewBill Page, I fill the form and submit", () => {
     test("Then the bill is added to API POST", async () => {
       localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
       document.body.innerHTML = NewBillUI();
-      const store = null;
+      const store = mockStore;
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -137,6 +161,5 @@ describe("Given I am connected as an Employee", () => {
       expect(submitBill).toHaveBeenCalled();
       expect(screen.getByTestId("bills-title")).toBeTruthy();
     });
-
   });
 });

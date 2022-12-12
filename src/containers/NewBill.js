@@ -19,8 +19,15 @@ export default class NewBill {
     e.preventDefault();
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0];
     const fileName = file.name;
-    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
-    if (!allowedExtensions.test(fileName)) {
+    const formData = new FormData();
+    const email = JSON.parse(localStorage.getItem("user")).email;
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.JPG|\.JPEG|\.PNG)$/i;
+
+    if (this.document.querySelector(".error-message")) {
+      this.document.querySelector(".error-message").remove();
+    }
+
+    if (fileName.match(allowedExtensions) == null) {
       const errorMessage = this.document.createElement("div");
       errorMessage.classList.add("error-message");
       errorMessage.innerHTML = "Seuls les fichiers JPEG, JPG ou PNG sont acceptés";
@@ -28,18 +35,29 @@ export default class NewBill {
       fileInput.parentNode.appendChild(errorMessage);
       this.document.querySelector(`input[data-testid="file"]`).value = "";
       return false;
-    } else {
-      if (this.document.querySelector(".error-message")) {
-        this.document.querySelector(".error-message").remove();
-      }
     }
+    formData.append('file', file);
+    formData.append('email', email);
+
+    this.store
+      .bills()
+      .create({
+        data: formData,
+        headers: {
+          noContentType: true
+        }
+      })
+      .then(({ fileUrl, key }) => {
+        console.log(fileUrl);
+        this.billId = key;
+        this.fileUrl = fileUrl;
+        this.fileName = fileName;
+      }).catch(error => console.error(error));
   };
 
   handleSubmit = e => {
     e.preventDefault();
-    const file = e.target.querySelector(`input[data-testid="file"]`).files[0];
     const email = JSON.parse(localStorage.getItem("user")).email;
-    const formData = new FormData();
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
@@ -53,26 +71,6 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     };
-
-    formData.append('file', file);
-    formData.append('email', email);
-
-    if (this.store) {
-      this.store
-        .bills()
-        .create({
-          data: formData,
-          headers: {
-            noContentType: true
-          }
-        })
-        .then(({ fileUrl, key }) => {
-          console.log(fileUrl);
-          this.billId = key;
-          this.fileUrl = fileUrl;
-          this.fileName = fileName;
-        }).catch(error => console.error(error));
-    }
 
     this.updateBill(bill);
     this.onNavigate(ROUTES_PATH['Bills']);
